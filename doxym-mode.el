@@ -304,6 +304,15 @@ NAME is a string or a list of strings. "
          '(7 ,txt-face nil t)                            ; (bogous) link text
          '(8 doxym-warning nil t)))                      ; normal text which is actually meant to be link text
 
+(defmacro doxym-kw-id-line (name id-face &optional del-face)
+  `(list ,(concat
+           (doxym-re-no-escape)
+           "\\(" (doxym-re-cmd name) "\\)[ \t]+" ; doxygen command
+           "\\(" (doxym-re-id) "\\)"		 ; 1st arg: id
+           "\\(.*?\\)" (doxym-re-endl))		 ; 2nd arg: up to end of line
+         '(1 ,(or del-face 'doxym-hide-delimiter))
+         '(2 ,id-face)))
+     
 (defmacro doxym-kw-line (name face &optional del-face)
   `(list ,(concat
            (doxym-re-no-escape)
@@ -311,7 +320,7 @@ NAME is a string or a list of strings. "
            "\\(.*?\\)" (doxym-re-endl))                          ; arg: up to end of line
          '(1 ,(or del-face 'doxym-hide-delimiter))
          '(2 ,face)))
-     
+
 ;; id is optional. if left away, that single word is the text and the id. except
 ;; for page, there its only the id and the title text is empty.
 (defun doxym-re-section(name)
@@ -518,20 +527,23 @@ etags' defult it used."
    (list
     (concat (doxym-re-no-escape) "\\(<!--.*?\\(?:\n.*?\\)*?-->\\)")
     '(1 doxym-comment)) 
+   ;; bufferstart upto first /** 
    (cons (concat
           "\\`"
           "\\(\\(?:.\\|\n\\)*?\\)"
           "\\(/\\*\\(\\*+\\|!\\)\\)")
          'doxym-comment) 
+   ;; last */ up to buffer end
    (cons (concat
           "\\(\\*+/\\)"
-          "\\(\\(?:.\\|\n\\)*?\\)"
+          "\\([^/]*\\(/\\([^*]\\|\\*\\([^*!]\\|\\'\\)\\|\\'\\)[^/]*\\)*\\)"
           "\\'")
          'doxym-comment) 
    (cons (concat "\\(\\*+/\\)"
                  "\\(\\(?:.\\|\n\\)*?\\)"
                  "\\(/\\*\\(?:\\*+\\|!\\)\\)")
          'doxym-comment) 
+   ;; (cons "/\\*\\*+\\|\\*+/" 'doxym-comment);
 
    ;; verbatim/code blocks
    (doxym-kw-block "verbatim")
@@ -667,6 +679,9 @@ etags' defult it used."
    ;; escaped characters
    (list "\\([\\@]\\)[&$@\\#<>%\"]" '(1 doxym-hide-delimiter t)) 
 
+   (doxym-kw-id-line "defgroup" doxym-anchor)
+   (doxym-kw-id "ingroup" doxym-reference)
+   
    ;; todo: this is nova specific. doxym shall provide a way so clients can
    ;; define custum doxygen keywords.
    (doxym-kw-cmd "toc" doxym-complex-replacement)
@@ -689,7 +704,7 @@ etags' defult it used."
 
 ;; 
 (defun doxym-unfontify-region-function (beg end) 
-  (remove-overlays beg end)
+  (when doxym-break-section-line (remove-overlays beg end))
   (font-lock-default-unfontify-region beg end))
 
 (defun doxym-re-page-delimiter()
@@ -741,7 +756,8 @@ etags' defult it used."
   "Function used for `flyspell-generic-check-word-predicate' in doxym mode."
   (save-excursion
     (forward-word -1)			
-    (not (looking-back "[@\\]\\|</?\\|[@\\]ref\\(\\s-\\|\n\\)+"))))
+    (and (not (looking-back "[@\\]\\|</?\\|[@\\]ref\\(\\s-\\|\n\\)+"))
+	 (let (case-fold-search) (looking-at "[a-zA-Z][a-z]*\\b")))))
 
 ;;;###autoload
 (define-derived-mode doxym-mode text-mode "doxym"
