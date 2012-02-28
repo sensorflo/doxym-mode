@@ -1,11 +1,10 @@
 ;;; doxym-mode.el --- a major-mode for editing documentation written in doxygen markup language
 ;;
-;; Copyright 2010 Florian Kaufmann <sensorflo@gmail.com>
+;; Copyright 2010-2012 Florian Kaufmann <sensorflo@gmail.com>
 ;;
 ;; Author: Florian Kaufmann <sensorflo@gmail.com>
-;; URL: http://sensorflo-emacs.googlecode.com/svn/trunk/doxym-mode.el
+;; URL: https://gitorious.org/doxym-mode
 ;; Created: 2010
-;; Version: 0.1
 ;; Keywords: wp doxygen
 ;; 
 ;; This file is not part of GNU Emacs.
@@ -43,10 +42,11 @@
 ;; - paragraph definition. so fill-paragraph works correctly on list elements, ... 
 ;; - tell fill-paragraph not to break up certain constructs, such as the string
 ;;   in \ref id "bla bla".
-;;
-;; Bugs:
-;;
+
+
 ;;; Variables:
+(require 'markup-faces)
+
 
 (defgroup doxym nil
   "Support for documents written in doxygen markup language."
@@ -58,10 +58,6 @@
   :group 'doxym)
 
 (defconst doxym-break-section-string "\u00B6")
-
-;;; Code:
-
-(require 'markup-faces)
 
 (defvar doxym-text 'default)
 (defvar doxym-gen 'markup-gen-face)
@@ -82,7 +78,6 @@
 (defvar doxym-bold 'markup-bold-face)
 (defvar doxym-italic 'markup-italic-face)
 (defvar doxym-typewriter 'markup-typewriter-face)
-
 (defvar doxym-meta 'markup-meta-face)
 (defvar doxym-delimiter 'markup-delimiter-face)
 (defvar doxym-hide-delimiter 'markup-hide-delimiter-face )
@@ -97,7 +92,6 @@
 (defvar doxym-secondary-text 'markup-secondary-text-face )
 (defvar doxym-warning 'font-lock-warning-face)
 
-
 (defvar doxym-mode-hook nil
   "Normal hook run when entering doxym Text mode.")
 
@@ -105,6 +99,9 @@
   "Abbrev table in use in doxym-mode buffers.")
 
 (define-abbrev-table 'doxym-mode-abbrev-table ())
+
+
+;;; Code:
 
 (defun doxym-make-string (str cnt)
   "As `make-string', but the argument is a string"
@@ -124,11 +121,13 @@
          (doxym-make-string (concat x "??") (- to from))
        (error "to must be greater or equal from")))))
 
+
+
+;;; re - regular expressions
+
 ;; from doctokenizer.l
 ;; WS  [ \t\r\n]
 ;; ID  "$"?[a-z_A-Z\x80-\xFF][a-z_A-Z0-9\x80-\xFF]*
-
-;;; re - regular expressions
 
 ;; bug: actually the returned regex should also match a mixed case version
 (defun doxym-re-upper-or-lowercase(regexp)
@@ -250,6 +249,7 @@ NAME is a string or a list of strings. "
    (concat (doxym-re-no-escape) "\\(" (doxym-re-cmd name) "\\)")
    `(1 ,(or face 'doxym-delimiter))))
 
+
 ;;; kw - font lock keyword
 ;;; mkl - make lambda usable as highligher function in font lock keywords
 
@@ -700,6 +700,7 @@ etags' defult it used."
    )
   "Keywords to highlight in doxym-mode.")
 
+
 ;;; miscellanous
 
 ;; 
@@ -759,6 +760,7 @@ etags' defult it used."
     (and (not (looking-back "[@\\]\\|</?\\|[@\\]ref\\(\\s-\\|\n\\)+"))
 	 (let (case-fold-search) (looking-at "[a-zA-Z][a-z]*\\b")))))
 
+
 ;;;###autoload
 (define-derived-mode doxym-mode text-mode "doxym"
   "Major mode for editing doxygen pages.
