@@ -57,6 +57,11 @@
   :type 'boolean
   :group 'doxym)
 
+(defcustom doxym-title-shift nil
+  "When t \\page and following use doxym-title-1 (instead doxym-title-0) and following."
+  :type 'boolean
+  :group 'doxym)
+
 (defconst doxym-break-section-string "\u00B6")
 
 (defvar doxym-text 'default)
@@ -509,6 +514,10 @@ etags' defult it used."
              "[ \\1]*\\([-a-zA-Z0-9_]+\\)")))
     (shell-command (concat "etags --language=none --regex='/" re "/\\1/' " (buffer-file-name)))))
 
+(defconst doxym-title-faces
+  (let ((l '(doxym-title-0 doxym-title-1 doxym-title-2 doxym-title-3 doxym-title-4 doxym-title-5)))
+    (if doxym-title-shift (cdr l) l)))
+
 (defconst doxym-font-lock-keywords
   (list
    
@@ -564,18 +573,18 @@ etags' defult it used."
    (doxym-kw-cmd "endif" font-lock-preprocessor-face)
 
    ;; document structure
-   ;; todo: actual title on a new line, i.e. only for display insert a newline
-   (doxym-kw-line "mainpage" doxym-title-0)
-   (doxym-kw-section "page" 'doxym-title-0)
-   (doxym-kw-section "section" 'doxym-title-1)
-   (doxym-kw-section "subsection" 'doxym-title-2)
-   (doxym-kw-section "subsubsection" 'doxym-title-3)
-   (doxym-kw-xml-element "h1" doxym-title-0) ;page
-   (doxym-kw-xml-element "h2" doxym-title-1) ;section
-   (doxym-kw-xml-element "h3" doxym-title-2)
-   (doxym-kw-xml-element "h4" doxym-title-3)
-   (doxym-kw-xml-element "h5" doxym-title-4)
-   (doxym-kw-xml-element "h6" doxym-title-5)
+   (doxym-kw-line "mainpage" (nth 0 doxym-title-faces))
+   (doxym-kw-section "page" (nth 0 doxym-title-faces))
+   (doxym-kw-section "section" (nth 1 doxym-title-faces))
+   (doxym-kw-section "subsection" (nth 2 doxym-title-faces))
+   (doxym-kw-section "subsubsection" (nth 3 doxym-title-faces))
+   (doxym-kw-xml-element "h1" (nth 0 doxym-title-faces)) ;=page
+   (doxym-kw-xml-element "h2" (nth 1 doxym-title-faces)) ;=section
+   (doxym-kw-xml-element "h3" (nth 2 doxym-title-faces)) ;=subsection
+   (doxym-kw-xml-element "h4" (nth 3 doxym-title-faces)) ;=subsubsection
+   (doxym-kw-xml-element "h5" (nth 4 doxym-title-faces))
+   ;; (unless doxym-title-shift
+   ;;   (doxym-kw-xml-element "h6" (nth 5 doxym-title-faces))) 
    (doxym-kw-xml-tag "p" doxym-delimiter)
 
    ;; phrase formatting
