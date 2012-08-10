@@ -45,7 +45,7 @@
 
 
 ;;; Variables:
-(require 'markup-faces)
+(require 'markup-faces) ; https://github.com/sensorflo/markup-faces
 
 
 (defgroup doxym nil
