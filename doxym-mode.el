@@ -3,7 +3,7 @@
 ;; Copyright 2010-2012 Florian Kaufmann <sensorflo@gmail.com>
 ;;
 ;; Author: Florian Kaufmann <sensorflo@gmail.com>
-;; URL: https://gitorious.org/doxym-mode
+;; URL: https://github.com/sensorflo/doxym-mode.git
 ;; Created: 2010
 ;; Keywords: wp doxygen
 ;; 
