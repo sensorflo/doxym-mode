@@ -97,9 +97,6 @@
 (defvar doxym-secondary-text 'markup-secondary-text-face )
 (defvar doxym-warning 'font-lock-warning-face)
 
-(defvar doxym-mode-hook nil
-  "Normal hook run when entering doxym Text mode.")
-
 (defvar doxym-mode-abbrev-table nil
   "Abbrev table in use in doxym-mode buffers.")
 
@@ -820,10 +817,7 @@ Turning on doxym mode runs the normal hook `doxym-mode-hook'."
        (concat "[ \t]*" (doxym-re-cmd "\\(?:mainpage\\|page\\|\\(?:sub\\)\\{,2\\}section\\)")))
   
   ;; flyspell
-  (setq flyspell-generic-check-word-predicate 'doxym-mode-flyspell-verify)
-  
-
-  (run-hooks 'doxym-mode-hook))
+  (setq flyspell-generic-check-word-predicate 'doxym-mode-flyspell-verify))
 
 (provide 'doxym-mode)
 
